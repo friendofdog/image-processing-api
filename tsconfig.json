@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es6", "es2017"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": false,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "./dist",
+    "paths": {
+      "@handlers/*": ["src/handlers/*"],
+      "@routes/*": ["src/routes/*"],
+      "test": ["test/*"]
+    },
+    "plugins": [
+      {
+        "exclude": ["**/node_modules/**"],
+        "transform": "typescript-transform-paths"
+      }
+    ],
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "target": "es2017"
+  },
+  "exclude": [
+    "node_modules",
+    "test",
+    "**/*.test.ts"
+  ],
+  "include": ["src"],
+  "ts-node": {
+    "require": [ "typescript-transform-paths/register" ],
+    "transpileOnly": true
+  }
+}
