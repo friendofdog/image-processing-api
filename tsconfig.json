@@ -15,6 +15,7 @@
     "noUnusedParameters": true,
     "outDir": "./dist",
     "paths": {
+      "@database/*": ["src/database/*"],
       "@handlers/*": ["src/handlers/*"],
       "@routes/*": ["src/routes/*"],
       "test": ["test/*"]
@@ -33,6 +34,7 @@
   },
   "exclude": [
     "node_modules",
+    "prisma",
     "test",
     "**/*.test.ts"
   ],

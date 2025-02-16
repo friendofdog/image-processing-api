@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JobStatus {
+  UNPROCESSED
+  PROCESSING
+  SUCCEEDED
+  FAILED
+}
+
+enum ImageSize {
+  ORIGINAL
+  THUMBNAIL
+}
+
+model Job {
+  id          Int         @id @default(autoincrement())
+  status      JobStatus   @default(UNPROCESSED)
+  createdAt   DateTime    @default(now())
+
+  images      Image[]
+}
+
+model Image {
+  id          Int         @id @default(autoincrement())
+  jobId       Int      
+  blobId      String?
+  size        ImageSize   @default(THUMBNAIL)
+  createdAt   DateTime    @default(now())
+
+  job         Job         @relation(fields: [jobId], references: [id], onDelete: Restrict)
+}

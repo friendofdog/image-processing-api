@@ -23,3 +23,8 @@ When an `image` is "processed", it means that the it was resized (thumbnail
 only) and uploaded to storage. A valid blob ID is indicative of successful
 processing. The associated job is `PROCESSED` only once both/all images have
 blob IDs.
+
+## Notes, TODOs
+
+- `prisma generate` needs to be worked into build and Docker
+- `image` entries cannot be deleted until their blobs are delete from storage

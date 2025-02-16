@@ -1,0 +1,28 @@
+-- CreateEnum
+CREATE TYPE "JobStatus" AS ENUM ('UNPROCESSED', 'PROCESSING', 'SUCCEEDED', 'FAILED');
+
+-- CreateEnum
+CREATE TYPE "ImageSize" AS ENUM ('ORIGINAL', 'THUMBNAIL');
+
+-- CreateTable
+CREATE TABLE "Job" (
+    "id" SERIAL NOT NULL,
+    "status" "JobStatus" NOT NULL DEFAULT 'UNPROCESSED',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Job_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Image" (
+    "id" SERIAL NOT NULL,
+    "jobId" INTEGER NOT NULL,
+    "blobId" TEXT,
+    "size" "ImageSize" NOT NULL DEFAULT 'THUMBNAIL',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Image_pkey" PRIMARY KEY ("id")
+);
+
+-- AddForeignKey
+ALTER TABLE "Image" ADD CONSTRAINT "Image_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
