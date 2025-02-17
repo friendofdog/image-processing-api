@@ -1,6 +1,7 @@
 import { handleGetJobs } from './get';
 import { mockRequestResponse } from '../../../test/mocks/mockExpress';
 import { getJobs } from '../../database/job';
+import { JobStatus } from '@prisma/client';
 
 
 jest.mock('@database/job', () => ({
@@ -11,8 +12,8 @@ describe('GET /jobs', () => {
   let mockGetJobs: jest.Mock;
 
   const mockJobs = [
-    { id: 1, status: 'PROCESSING', createdAt: new Date() },
-    { id: 2, status: 'SUCCEEDED', createdAt: new Date() }
+    { id: 1, status: JobStatus.PROCESSING, createdAt: new Date() },
+    { id: 2, status: JobStatus.SUCCEEDED, createdAt: new Date() }
   ];
 
   beforeEach(() => {
@@ -23,7 +24,9 @@ describe('GET /jobs', () => {
     mockGetJobs.mockReset();
   })
 
-  it('should query the database with request query params and return paginated results', async () => {
+  it(`when page and limit are included in request query
+      should call getter function with arguments
+      and return paginated results`, async () => {
     const { req, res } = mockRequestResponse();
     req.query = { page: '1', limit: '10' };
 
@@ -39,7 +42,9 @@ describe('GET /jobs', () => {
     });
   });
 
-  it('should not define page and limit if they are not in request params', async () => {
+  it(`when page and limit are included in request query
+      should call getter function with no arguments
+      and return paginated results`, async () => {
     const { req, res } = mockRequestResponse();
     req.query = {};
 

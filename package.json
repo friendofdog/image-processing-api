@@ -34,7 +34,8 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/dist/"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "verbose": true
   },
   "dependencies": {
     "@dotenvx/dotenvx": "1.36.0",
