@@ -3,7 +3,7 @@ import { jest } from "@jest/globals";
 
 
 export const mockRequestResponse = () => {
-  const req = {} as Request;
+  const req = {} as Request<any, any, any, any>;
   const res = {
     send: jest.fn(),
     json: jest.fn(),

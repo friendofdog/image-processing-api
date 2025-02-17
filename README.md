@@ -24,6 +24,15 @@ only) and uploaded to storage. A valid blob ID is indicative of successful
 processing. The associated job is `PROCESSED` only once both/all images have
 blob IDs.
 
+## Endpoints
+
+### `GET /jobs`
+
+By default, this will return the most recent 100 jobs. The reason is to prevent
+overfetching of data, as the UI can only display so much information. Results
+are in reverse `createdAt`, as it is assumed that the most recent jobs are the
+most relevant.
+
 ## Notes, TODOs
 
 - `prisma generate` needs to be worked into build and Docker
