@@ -9,3 +9,10 @@ export const getJobs = async (
   skip: (page - 1) * limit,
   take: limit
 });
+
+export const getJobById = async(
+  jobId: number
+) => prisma.job.findUnique({
+  where: { id: jobId },
+  include: { images: true }
+});
