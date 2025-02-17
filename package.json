@@ -25,6 +25,12 @@
       "node_modules",
       "src"
     ],
+    "moduleNameMapper": {
+      "^@database/(.*)$": "<rootDir>/src/database/$1",
+      "^@handlers/(.*)$": "<rootDir>/src/handlers/$1",
+      "^@interfaces/(.*)$": "<rootDir>/src/interfaces/$1",
+      "^@routes/(.*)$": "<rootDir>/src/routes/$1"
+    },
     "modulePathIgnorePatterns": [
       "<rootDir>/dist/"
     ],

@@ -17,6 +17,7 @@
     "paths": {
       "@database/*": ["src/database/*"],
       "@handlers/*": ["src/handlers/*"],
+      "@interfaces/*": ["src/interfaces/*"],
       "@routes/*": ["src/routes/*"],
       "test": ["test/*"]
     },
