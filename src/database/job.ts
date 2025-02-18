@@ -14,5 +14,20 @@ export const getJobById = async(
   jobId: number
 ) => prisma.job.findUnique({
   where: { id: jobId },
-  include: { images: true }
+  include: { image: true }
+});
+
+export const getJobAndImageBySize = async (
+  jobId: number
+) => prisma.job.findFirst({
+  where: {
+    id: jobId,
+    image: {}
+  },
+  include: {
+    image: {
+      select: { id: true, originalBlobId: true, thumbnailBlobId: true },
+      where: { originalBlobId: { not: null }, thumbnailBlobId: { not: null } }
+    }
+  }
 });

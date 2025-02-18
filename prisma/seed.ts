@@ -1,4 +1,4 @@
-import { PrismaClient, JobStatus, ImageSize } from '@prisma/client';
+import { PrismaClient, JobStatus } from '@prisma/client';
 import crypto from 'crypto';
 
 
@@ -11,8 +11,8 @@ async function main() {
   let createdAt = new Date();
 
   for (let i = 1; i <= 100; i++) {
-    let blobIdOriginal: string | null = null;
-    let blobIdThumbnail: string | null = null;
+    let originalBlobId: string | null = null;
+    let thumbnailBlobId: string | null = null;
 
     switch (true) {
       case i % 20 === 0: // 5 entries
@@ -20,39 +20,33 @@ async function main() {
         break;
       case i % 13 === 0: // 7 entries
         status = PROCESSING;
-        blobIdOriginal = crypto.randomUUID();
+        originalBlobId = crypto.randomUUID();
         break;
       case i % 10 === 0: // 5 entries
         status = UNPROCESSED;
         break;
       default:
         status = SUCCEEDED;
-        blobIdOriginal = crypto.randomUUID();
-        blobIdThumbnail = crypto.randomUUID();
+        originalBlobId = crypto.randomUUID();
+        thumbnailBlobId = crypto.randomUUID();
     }
 
     const job = await prisma.job.create({
       data: {
         createdAt,
+        updatedAt: createdAt,
         status
       }
     });
 
-    await prisma.image.createMany({
-      data: [
-        {
-          createdAt: new Date(createdAt.getTime() + 1 * 60 * 1000),
-          jobId: job.id,
-          blobId: blobIdOriginal,
-          size: ImageSize.ORIGINAL
-        },
-        {
-          createdAt: new Date(createdAt.getTime() + 2 * 60 * 1000),
-          jobId: job.id,
-          blobId: blobIdThumbnail,
-          size: ImageSize.THUMBNAIL
-        }
-      ]
+    await prisma.image.create({
+      data:{
+        createdAt: new Date(createdAt.getTime() + 1 * 60 * 1000),
+        updatedAt: new Date(createdAt.getTime() + 1 * 60 * 1000),
+        jobId: job.id,
+        originalBlobId,
+        thumbnailBlobId
+      }
     });
 
     createdAt = new Date(createdAt.getTime() + 60 * 60 * 1000);
