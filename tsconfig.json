@@ -18,6 +18,7 @@
       "@database/*": ["src/database/*"],
       "@handlers/*": ["src/handlers/*"],
       "@interfaces/*": ["src/interfaces/*"],
+      "@middleware/*": ["src/middleware/*"],
       "@routes/*": ["src/routes/*"],
       "test": ["test/*"]
     },
