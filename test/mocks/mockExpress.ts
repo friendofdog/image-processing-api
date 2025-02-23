@@ -8,6 +8,7 @@ export const mockRequestResponse = () => {
     send: jest.fn(),
     json: jest.fn(),
     status: jest.fn().mockReturnThis(),
+    setHeader: jest.fn()
   } as any as Response;
 
   return { req, res };
