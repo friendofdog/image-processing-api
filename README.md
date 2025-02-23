@@ -37,5 +37,7 @@ most relevant.
 
 - `prisma generate` needs to be worked into build and Docker
 - `image` entries cannot be deleted until their blobs are delete from storage
+- `handleGetImageThumbnail` could be re-purposed to find other image sizes, but
+there is nothing in specs requiring this; hence, it would be over-engineered
 - Calls to AWS S3 log error in console and throw a non-specific message to
 abstract the error (which we do not necessarily want returning to client)
