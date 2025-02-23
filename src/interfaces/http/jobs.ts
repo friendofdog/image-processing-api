@@ -8,5 +8,5 @@ export interface GetJobByIdParams {
 }
 
 export interface PostJobBody {
-  file: Express.Multer.File
+  file: File;
 }

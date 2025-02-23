@@ -8,7 +8,7 @@ import { PostJobBody } from '@interfaces/http/jobs';
 
 
 export const handleCreateJob = async (
-  req: Request<any, PostJobBody>,
+  req: Request<any, null, PostJobBody>,
   res: Response
 ): Promise<void> => {
   if (!req?.file) {
