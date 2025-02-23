@@ -20,6 +20,7 @@
       "@interfaces/*": ["src/interfaces/*"],
       "@middleware/*": ["src/middleware/*"],
       "@routes/*": ["src/routes/*"],
+      "@services/*": ["src/services/*"],
       "test": ["test/*"]
     },
     "plugins": [
