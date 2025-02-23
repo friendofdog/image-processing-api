@@ -37,3 +37,5 @@ most relevant.
 
 - `prisma generate` needs to be worked into build and Docker
 - `image` entries cannot be deleted until their blobs are delete from storage
+- Calls to AWS S3 log error in console and throw a non-specific message to
+abstract the error (which we do not necessarily want returning to client)

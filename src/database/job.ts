@@ -1,4 +1,5 @@
 import prisma from '@database/prisma';
+import { JobStatus } from '@prisma/client';
 
 
 export const getJobs = async (
@@ -29,5 +30,23 @@ export const getJobAndImageBySize = async (
       select: { id: true, originalBlobId: true, thumbnailBlobId: true },
       where: { originalBlobId: { not: null }, thumbnailBlobId: { not: null } }
     }
+  }
+});
+
+export const createNewJob = async () => prisma.job.create({
+  data: {
+    status: JobStatus.UNPROCESSED
+  }
+});
+
+export const updateJob = async (
+  jobId: number,
+  updatedData: object
+) => prisma.job.update({
+  where: {
+    id: jobId
+  },
+  data: {
+    ...updatedData
   }
 });

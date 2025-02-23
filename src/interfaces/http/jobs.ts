@@ -6,3 +6,7 @@ export interface GetJobsQuery {
 export interface GetJobByIdParams {
   jobId: string;
 }
+
+export interface PostJobBody {
+  file: Express.Multer.File
+}
