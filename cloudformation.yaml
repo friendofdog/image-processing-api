@@ -1,0 +1,107 @@
+Resources:
+  # S3 bucket for Lambda code
+  LambdaCodeBucket:
+    UpdateReplacePolicy: Retain
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: !Sub "${AWS::StackName}-lambda-code-${AWS::Region}"
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # S3 bucket for images
+  ImageStorageBucket:
+    UpdateReplacePolicy: Retain
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: !Sub "${AWS::StackName}-image-storage-${AWS::Region}"
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldImages
+            Status: Enabled
+            ExpirationInDays: 365
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # IAM role for Lambda access to image bucket and Lambda bucket
+  LambdaExecutionRole:
+    UpdateReplacePolicy: Retain
+    Type: AWS::IAM::Role
+    DeletionPolicy: Retain
+    Properties:
+      Path: /
+      MaxSessionDuration: 3600
+      RoleName: !Sub "${AWS::StackName}-lambda-role-${AWS::Region}"
+      Description: Allows Lambda functions to call S3 bucket on your behalf
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-lambda-policy-${AWS::Region}"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                Resource: 
+                  - !Sub "arn:aws:s3:::${ImageStorageBucket}/*"
+
+  # IAM policy for accessing image storage bucket
+  S3AccessPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "${AWS::StackName}-s3-access-policy-${AWS::Region}"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "s3:GetObject"
+              - "s3:PutObject"
+            Resource: 
+              - !Sub "arn:aws:s3:::${ImageStorageBucket}/*"
+      Groups:
+        - !Ref S3AccessGroup
+
+  # IAM group for accessing image storage bucket
+  S3AccessGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: !Sub "${AWS::StackName}-s3-access-group-${AWS::Region}"
+
+Outputs:
+  ImageStorageBucketName:
+    Description: "S3 bucket for image storage"
+    Value: !Ref ImageStorageBucket
+  S3AccessGroupName:
+    Description: "IAM Group for users with S3 access"
+    Value: !Ref S3AccessGroup
