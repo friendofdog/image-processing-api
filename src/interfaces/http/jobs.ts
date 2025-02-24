@@ -20,3 +20,8 @@ export interface PostJobBody {
 export interface GetImageByJobIdQuery extends ParsedQs {
   size?: string;
 }
+
+export interface PatchJobBody {
+  error?: string;
+  thumbnailBlobId?: string;
+}

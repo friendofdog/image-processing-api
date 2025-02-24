@@ -6,6 +6,7 @@ import { handleGetJobs } from '@handlers/jobs/get';
 import { handleCreateJob } from '@handlers/jobs/post';
 import { handleGetJobById } from '@handlers/jobs/{jobId}/get';
 import { handleGetJobImage } from '@handlers/jobs/{jobId}/image/get';
+import { handlePostJobImage } from '@handlers/jobs/{jobId}/image/post';
 import upload from '@middleware/upload';
 import { validate } from '@middleware/validator';
 import swaggerDocument from '@routes/schema/swagger.json';
@@ -26,6 +27,7 @@ router.get('/healthcheck', healthcheck);
 router.get('/jobs', validate(getJobsSchema), handleGetJobs);
 router.get('/jobs/:jobId', validate(getJobByIdSchema), handleGetJobById);
 router.get('/jobs/:jobId/image', validate(getJobByIdSchema), handleGetJobImage);
+router.post('/jobs/:jobId/image', handlePostJobImage);
 router.post('/jobs', upload.single('file'), validate(createJobSchema), handleCreateJob);
 
 export default router;
