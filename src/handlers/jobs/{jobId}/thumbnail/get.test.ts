@@ -1,4 +1,4 @@
-import { handleGetThumbnailImage } from './get';
+import { handleGetJobThumbnail } from './get';
 import { getJobWithThumbnail } from '../../../../database/job';
 import { mockRequestResponse } from '../../../../../test/mocks/mockExpress';
 import { downloadFileByBlobId } from '../../../../services/imageStorage';
@@ -50,7 +50,7 @@ describe('GET /jobs/{jobId}/thumbnail', () => {
       should return 404`, async () => {
     mockGetJobWithThumbnail.mockResolvedValue(null);
 
-    await handleGetThumbnailImage(req, res);
+    await handleGetJobThumbnail(req, res);
 
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.send).toHaveBeenCalledWith('No job with thumbnail image found for ID 123.');
@@ -60,7 +60,7 @@ describe('GET /jobs/{jobId}/thumbnail', () => {
       should return 500`, async () => {
     mockGetJobWithThumbnail.mockResolvedValue({ status: JobStatus.FAILED, image: {} });
 
-    await handleGetThumbnailImage(req, res);
+    await handleGetJobThumbnail(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.send).toHaveBeenCalledWith('Cannot retrieve image for job with status FAILED.');
@@ -70,7 +70,7 @@ describe('GET /jobs/{jobId}/thumbnail', () => {
       should return 404`, async () => {
     mockGetJobWithThumbnail.mockResolvedValue({ status: JobStatus.SUCCEEDED, image: null });
 
-    await handleGetThumbnailImage(req, res);
+    await handleGetJobThumbnail(req, res);
 
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.send).toHaveBeenCalledWith('No thumbnail image found for this job.');
@@ -80,11 +80,21 @@ describe('GET /jobs/{jobId}/thumbnail', () => {
   it(`when image is downloaded
       should stream image`, async () => {
     const mockReadableStream = Readable.from({} as any);
-    await handleGetThumbnailImage(req, res);
+    await handleGetJobThumbnail(req, res);
 
     expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'image/png');
     expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename=test.png');
 
     expect(mockReadableStream.pipe).toHaveBeenCalled();
+  });
+
+  it(`when no image can be downloaded
+      should return 404`, async () => {
+    mockDownloadFileByBlobId.mockResolvedValueOnce({});
+
+    await handleGetJobThumbnail(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.send).toHaveBeenCalledWith('No thumbnail image was found for blob ID.');
   });
 });

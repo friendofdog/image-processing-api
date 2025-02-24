@@ -1,6 +1,6 @@
 import { getJobWithThumbnail } from '@database/job';
 import { JobStatus } from '@prisma/client';
-import { downloadFileByBlobId } from '@services/imageStorage';
+import { DownloadedFileInterface, downloadFileByBlobId } from '@services/imageStorage';
 import type { Request, Response } from 'express';
 import { JobByIdParams } from 'src/interfaces/http/jobs';
 import { Readable } from 'stream';
@@ -32,7 +32,8 @@ export const handleGetJobThumbnail = async (
     return;
   }
 
-  const { fileBuffer, metadata } = await downloadFileByBlobId(thumbnailBlobId);
+  const { fileBuffer, metadata } = await downloadFileByBlobId(thumbnailBlobId)
+    .catch(_ => {}) as DownloadedFileInterface;
 
   if (fileBuffer && metadata) {
     const readableStream = Readable.from(fileBuffer);
