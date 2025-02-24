@@ -1,4 +1,5 @@
 import prisma from '@database/prisma';
+import type { Prisma } from '@prisma/client';
 import { JobStatus } from '@prisma/client';
 
 
@@ -41,7 +42,7 @@ export const createNewJob = async () => prisma.job.create({
 
 export const updateJob = async (
   jobId: number,
-  updatedData: object
+  updatedData: Prisma.JobUpdateInput
 ) => prisma.job.update({
   where: {
     id: jobId
