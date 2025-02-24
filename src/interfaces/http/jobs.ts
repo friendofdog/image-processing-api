@@ -3,7 +3,7 @@ export interface GetJobsQuery {
   limit?: string;
 }
 
-export interface GetJobByIdParams {
+export interface JobByIdParams {
   jobId: string;
 }
 

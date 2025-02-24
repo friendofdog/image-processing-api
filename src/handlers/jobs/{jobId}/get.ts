@@ -1,10 +1,10 @@
 import { getJobById } from '@database/job';
 import type { Request, Response } from 'express';
-import { GetJobByIdParams } from 'src/interfaces/http/jobs';
+import { JobByIdParams } from 'src/interfaces/http/jobs';
 
 
 export const handleGetJobById = async (
-  req: Request<GetJobByIdParams>,
+  req: Request<JobByIdParams>,
   res: Response
 ) => {
   const { jobId } = req.params;

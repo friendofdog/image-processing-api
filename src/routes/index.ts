@@ -3,7 +3,7 @@ import { healthcheck } from '@handlers/healthcheck'
 import { handleGetJobs } from '@handlers/jobs/get';
 import { handleCreateJob } from '@handlers/jobs/post';
 import { handleGetJobById } from '@handlers/jobs/{jobId}/get';
-import { handleGetThumbnailImage } from '@handlers/jobs/{jobId}/thumbnail/get';
+import { handleGetJobThumbnail } from '@handlers/jobs/{jobId}/thumbnail/get';
 import upload from '@middleware/upload';
 
 
@@ -13,7 +13,7 @@ router.get('/healthcheck', healthcheck);
 
 router.get('/jobs', handleGetJobs);
 router.get('/jobs/:jobId', handleGetJobById);
-router.get('/jobs/:jobId/thumbnail', handleGetThumbnailImage);
+router.get('/jobs/:jobId/thumbnail', handleGetJobThumbnail);
 router.post('/jobs', upload.single('file'), handleCreateJob);
 
 export default router;
