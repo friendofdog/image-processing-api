@@ -15,8 +15,6 @@
     "build": "tspc --build",
     "lint": "eslint .",
     "migrate:up": "prisma migrate deploy",
-    "seed": "ts-node prisma/seed.ts",
-    "unseed": "ts-node prisma/unseed.ts",
     "test": "jest"
   },
   "jest": {
