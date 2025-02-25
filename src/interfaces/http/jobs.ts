@@ -1,3 +1,4 @@
+import { IMAGE_SIZE } from "@constants/image";
 import { ImageSize } from "@interfaces/image";
 
 
@@ -11,5 +12,5 @@ export interface JobByIdParams {
 }
 
 export interface PostJobBody {
-  sizes: ImageSize[];
+  size: Exclude<ImageSize, typeof IMAGE_SIZE.ORIGINAL>;
 }

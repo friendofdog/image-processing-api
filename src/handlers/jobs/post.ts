@@ -4,6 +4,7 @@ import type { Request, Response } from 'express';
 import { randomUUID } from 'crypto';
 import { PostJobBody } from '@interfaces/http/jobs';
 import { imageQueue, QUEUE_NAME } from '@services/messageQueue';
+import { IMAGE_SIZE } from '@constants/image';
 
 
 interface MulterRequest extends Request {
@@ -20,13 +21,14 @@ export const handleCreateJob = async (
     return;
   }
 
-  const { sizes } = req.body;
+  const { size } = req.body;
   const { originalname, buffer, mimetype } = req.file;
 
   const { id: jobId } = await createNewJob();
-  const blobId = randomUUID();
-
   const { id: imageId } = await createNewImage(jobId)
+
+  const blobId = randomUUID();
+  const sizesWithOriginal = [IMAGE_SIZE.ORIGINAL, size]
 
   await imageQueue.add(QUEUE_NAME, {
     blobId,
@@ -35,7 +37,7 @@ export const handleCreateJob = async (
     imageId,
     jobId,
     mimetype,
-    sizes
+    sizes: sizesWithOriginal
   });
 
   res.status(200).send('New job successfully created.');

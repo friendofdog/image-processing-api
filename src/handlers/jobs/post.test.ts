@@ -3,6 +3,7 @@ import { mockRequestResponse } from '../../../test/mocks/mockExpress';
 import { createNewJob } from '../../database/job';
 import { createNewImage } from '../../database/image';
 import { imageQueue } from '../../services/messageQueue';
+import { IMAGE_SIZE } from '../../constants/image';
 
 
 const mockImageId = 99;
@@ -38,7 +39,7 @@ describe('POST /jobs', () => {
     mockCreateNewJob = (createNewJob as jest.Mock).mockResolvedValue({ id: mockJobId });
     mockImageQueueAdd = (imageQueue.add as jest.Mock);
 
-    req.body = { sizes: ['original', 'thumbnail'] };
+    req.body = { size: IMAGE_SIZE.THUMBMNAIL };
     req.file = {
       originalname: 'test.png',
       buffer: Buffer.from('mocked file data'),
@@ -67,7 +68,7 @@ describe('POST /jobs', () => {
       imageId: mockImageId,
       jobId: mockJobId,
       mimetype: 'image/png',
-      sizes: ['original', 'thumbnail']
+      sizes: [IMAGE_SIZE.ORIGINAL, IMAGE_SIZE.THUMBMNAIL]
     });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith('New job successfully created.');
