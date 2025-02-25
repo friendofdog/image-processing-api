@@ -1,17 +1,12 @@
 import {
   S3Client,
   PutObjectCommand,
-  GetObjectCommand,
-  GetObjectCommandOutput
+  GetObjectCommand
 } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 import { createHash } from 'node:crypto';
+import type { DownloadedFileInterface } from '@interfaces/image';
 
-
-export interface DownloadedFileInterface {
-  fileBuffer: Buffer<ArrayBufferLike>;
-  metadata: GetObjectCommandOutput['Metadata'];
-}
 
 const s3Client = new S3Client({
   // region: process.env.AWS_REGION, // not used by minio

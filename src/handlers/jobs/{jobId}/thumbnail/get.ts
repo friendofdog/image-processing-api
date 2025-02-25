@@ -1,6 +1,7 @@
 import { getJobWithThumbnail } from '@database/job';
+import type { DownloadedFileInterface } from '@interfaces/image';
 import { JobStatus } from '@prisma/client';
-import { DownloadedFileInterface, downloadFileByBlobId } from '@services/imageStorage';
+import { downloadFileByBlobId } from '@services/imageStorage';
 import type { Request, Response } from 'express';
 import { JobByIdParams } from 'src/interfaces/http/jobs';
 import { Readable } from 'stream';
