@@ -15,6 +15,7 @@
     "noUnusedParameters": true,
     "outDir": "./dist",
     "paths": {
+      "@constants/*": ["src/constants/*"],
       "@database/*": ["src/database/*"],
       "@handlers/*": ["src/handlers/*"],
       "@interfaces/*": ["src/interfaces/*"],
