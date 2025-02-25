@@ -8,13 +8,15 @@ import { Readable } from 'stream';
 import { createHash } from 'node:crypto';
 
 
-interface DownloadedFileInterface {
+export interface DownloadedFileInterface {
   fileBuffer: Buffer<ArrayBufferLike>;
   metadata: GetObjectCommandOutput['Metadata'];
 }
 
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
+  // region: process.env.AWS_REGION, // not used by minio
+  endpoint: process.env.AWS_S3_ENDPOINT,
+  forcePathStyle: true,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
@@ -26,7 +28,7 @@ export const uploadFile = async (
   fileName: string,
   fileContent: Buffer,
   mimetype: string
-): Promise<void> => {
+): Promise<string> => {
   const ChecksumSHA256 = createHash('sha256').update(fileContent).digest('base64');
 
   const putCommand = new PutObjectCommand({
@@ -42,15 +44,17 @@ export const uploadFile = async (
     }
   });
   
-  const res = await s3Client.send(putCommand)
+  const uploadedFile = await s3Client.send(putCommand)
     .catch(err => {
       console.error('❌ Error uploading file:', err);
       throw new Error('An error occured while uploading the file.');
     });
-
-  if (res?.ChecksumSHA256 !== ChecksumSHA256) {
+  
+  if (uploadedFile?.ChecksumSHA256 !== ChecksumSHA256) {
     throw new Error('Checksum mismatch: file upload might be corrupted.');
   }
+
+  return blobId;
 };
 
 export const downloadFileByBlobId = async (blobId: string): Promise<DownloadedFileInterface> => {
