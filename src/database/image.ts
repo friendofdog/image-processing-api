@@ -12,12 +12,12 @@ export const createNewImage = async (
   }
 });
 
-export const updateImageByJobId = async (
-  jobId: number,
+export const updateImage = async (
+  id: number,
   updatedData: Prisma.ImageUpdateInput
 ) => prisma.image.update({
   where: {
-    jobId
+    id
   },
   data: {
     ...updatedData
