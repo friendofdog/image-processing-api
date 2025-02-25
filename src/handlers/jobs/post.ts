@@ -1,14 +1,18 @@
-import { createNewJob, updateJob } from '@database/job';
+import { createNewJob } from '@database/job';
 import { createNewImage } from '@database/image';
 import type { Request, Response } from 'express';
-import { uploadFile } from '@services/imageStorage';
 import { randomUUID } from 'crypto';
-import { JobStatus } from '@prisma/client';
 import { PostJobBody } from '@interfaces/http/jobs';
+import { imageQueue, QUEUE_NAME } from '@services/messageQueue';
+
+
+interface MulterRequest extends Request {
+  body: PostJobBody;
+}
 
 
 export const handleCreateJob = async (
-  req: Request<any, null, PostJobBody>,
+  req: MulterRequest,
   res: Response
 ): Promise<void> => {
   if (!req?.file) {
@@ -16,22 +20,23 @@ export const handleCreateJob = async (
     return;
   }
 
+  const { sizes } = req.body;
   const { originalname, buffer, mimetype } = req.file;
-  const newJob = await createNewJob();
-  const { id: jobId } = newJob;
+
+  const { id: jobId } = await createNewJob();
   const blobId = randomUUID();
 
-  await uploadFile(blobId, originalname, buffer, mimetype)
-    .catch(async err => {
-      await updateJob(jobId, { status: JobStatus.FAILED });
+  const { id: imageId } = await createNewImage(jobId)
 
-      res.status(500).send(err);
-      return;
-    });
-
-  await createNewImage(jobId, blobId)
-
-  // TODO: make request to resize image; update status to PROCESSING
+  await imageQueue.add(QUEUE_NAME, {
+    blobId,
+    fileContent: buffer,
+    fileName: originalname,
+    imageId,
+    jobId,
+    mimetype,
+    sizes
+  });
 
   res.status(200).send('New job successfully created.');
 };

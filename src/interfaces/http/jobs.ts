@@ -1,3 +1,6 @@
+import { ImageSize } from "@interfaces/image";
+
+
 export interface GetJobsQuery {
   page?: string;
   limit?: string;
@@ -8,5 +11,5 @@ export interface JobByIdParams {
 }
 
 export interface PostJobBody {
-  file: File;
+  sizes: ImageSize[];
 }

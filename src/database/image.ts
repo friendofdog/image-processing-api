@@ -3,12 +3,10 @@ import type { Prisma } from '@prisma/client';
 
 
 export const createNewImage = async (
-  jobId: number,
-  originalBlobId: string
+  jobId: number
 ) => prisma.image.create({
   data: {
-    jobId,
-    originalBlobId
+    jobId
   }
 });
 

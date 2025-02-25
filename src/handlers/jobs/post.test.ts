@@ -1,63 +1,74 @@
 import { handleCreateJob } from './post';
 import { mockRequestResponse } from '../../../test/mocks/mockExpress';
-import { createNewJob, updateJob } from '../../database/job';
+import { createNewJob } from '../../database/job';
 import { createNewImage } from '../../database/image';
-import { uploadFile } from '../../services/imageStorage';
-import { JobStatus } from '@prisma/client';
+import { imageQueue } from '../../services/messageQueue';
 
+
+const mockImageId = 99;
+const mockJobId = 22;
+const mockBlobId = 'mocked-blob-id';
 
 jest.mock('@database/job', () => ({
-  createNewJob: jest.fn(),
-  updateJob: jest.fn()
+  createNewJob: jest.fn()
 }));
 
 jest.mock('@database/image', () => ({
   createNewImage: jest.fn()
 }));
 
-jest.mock('@services/imageStorage', () => ({
-  uploadFile: jest.fn()
+jest.mock('@services/messageQueue', () => ({
+  imageQueue: { add: jest.fn() },
+  QUEUE_NAME: 'mock-queue-name'
 }));
 
 jest.mock('crypto', () => ({
-  randomUUID: jest.fn(() => 'mocked-blob-id')
+  randomUUID: jest.fn(() => mockBlobId)
 }));
 
 describe('POST /jobs', () => {
   let mockCreateNewJob: jest.Mock;
-  let mockUploadFile: jest.Mock;
+  let mockImageQueueAdd: jest.Mock;
   let mockCreateNewImage: jest.Mock;
 
   const { req, res } = mockRequestResponse();
 
   beforeEach(() => {
-    mockCreateNewJob = (createNewJob as jest.Mock);
-    mockUploadFile = (uploadFile as jest.Mock);
-    mockCreateNewImage = (createNewImage as jest.Mock);
+    mockCreateNewImage = (createNewImage as jest.Mock).mockResolvedValue({ id: mockImageId });
+    mockCreateNewJob = (createNewJob as jest.Mock).mockResolvedValue({ id: mockJobId });
+    mockImageQueueAdd = (imageQueue.add as jest.Mock);
 
+    req.body = { sizes: ['original', 'thumbnail'] };
     req.file = {
       originalname: 'test.png',
       buffer: Buffer.from('mocked file data'),
       mimetype: 'image/png'
     } as Express.Multer.File;
-    
-    mockCreateNewJob.mockResolvedValue({ id: 99 });
-    mockUploadFile.mockResolvedValue(null);
   });
 
   afterEach(() => {
     mockCreateNewJob.mockReset();
-    mockUploadFile.mockReset();
+    mockImageQueueAdd.mockReset();
     mockCreateNewImage.mockReset();
   });
 
   it(`when a valid file is in the request
-      should create a job, upload a file, and create an image record`, async () => {
+      should create a job and an image
+      send notification to message queue
+      and return a 200 response`, async () => {
     await handleCreateJob(req, res);
 
     expect(mockCreateNewJob).toHaveBeenCalled();
-    expect(mockUploadFile).toHaveBeenCalledWith('mocked-blob-id', 'test.png', req?.file?.buffer, 'image/png');
-    expect(mockCreateNewImage).toHaveBeenCalledWith(99, 'mocked-blob-id');
+    expect(mockCreateNewImage).toHaveBeenCalledWith(mockJobId);
+    expect(mockImageQueueAdd).toHaveBeenCalledWith('mock-queue-name', {
+      blobId: mockBlobId,
+      fileContent: Buffer.from('mocked file data'),
+      fileName: 'test.png',
+      imageId: mockImageId,
+      jobId: mockJobId,
+      mimetype: 'image/png',
+      sizes: ['original', 'thumbnail']
+    });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith('New job successfully created.');
   });
@@ -71,19 +82,5 @@ describe('POST /jobs', () => {
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledWith('File to upload is missing or incomplete.');
     expect(mockCreateNewJob).not.toHaveBeenCalled();
-  });
-
-  it(`when file upload fails
-      should update job status to FAILED and return 500`, async () => {
-    const uploadError = new Error('Upload failed');
-    mockUploadFile.mockRejectedValue(uploadError);
-
-    await handleCreateJob(req, res);
-
-    expect(mockCreateNewJob).toHaveBeenCalled();
-    expect(mockUploadFile).toHaveBeenCalled();
-    expect(updateJob).toHaveBeenCalledWith(99, { status: JobStatus.FAILED });
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.send).toHaveBeenCalledWith(uploadError);
   });
 });
