@@ -50,8 +50,16 @@ const imageWorker = new Worker<ImageProcessingWorkerInterface>(
 
     await Promise.all(
       sizes.map(async resolution => {
-        const resizedImage = await processImage(buffer, resolution);
-        const uploadedBlobId = await uploadFile(`${resolution}/${blobId}`, fileName, resizedImage, mimetype);
+        let resizedImage;
+        if (resolution !== ORIGINAL) {
+          resizedImage = await processImage(buffer, resolution);
+        }
+        const uploadedBlobId = await uploadFile(
+          `${resolution}/${blobId}`,
+          fileName,
+          resizedImage || buffer,
+          mimetype
+        );
 
         blobIdsByRowName.set(IMAGE_MODEL_ROWS[resolution], uploadedBlobId)
         console.info(`✅ ${resolution} uploaded for ${fileName}`)
