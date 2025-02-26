@@ -1,3 +1,5 @@
+import { ParsedQs } from 'qs';
+
 import { IMAGE_SIZE } from "@constants/image";
 import { ImageSize } from "@interfaces/image";
 
@@ -13,4 +15,8 @@ export interface JobByIdParams extends Record<string, string> {
 
 export interface PostJobBody {
   size: Exclude<ImageSize, typeof IMAGE_SIZE.ORIGINAL>;
+}
+
+export interface GetImageByJobIdQuery extends ParsedQs {
+  size?: string;
 }
