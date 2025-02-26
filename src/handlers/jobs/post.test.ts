@@ -75,7 +75,7 @@ describe('POST /jobs', () => {
       mimetype: 'image/png',
       sizes: [ORIGINAL, THUMBMNAIL]
     });
-    expect(sendCreateResourceSuccess).toHaveBeenCalledWith(res, 'New job successfully created.');
+    expect(sendCreateResourceSuccess).toHaveBeenCalledWith(res, { id: mockJobId, image: { id: mockImageId } });
   });
 
   it(`when size is not included in request body

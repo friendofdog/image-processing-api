@@ -26,6 +26,6 @@ export const sendGetPaginatedSuccess = (res: Response, payload: object[]) => {
   })
 };
 
-export const sendCreateResourceSuccess = (res: Response, message?: string) => {
-  res.status(200).json({ message: message || 'Resource created' })
+export const sendCreateResourceSuccess = (res: Response, payload: object) => {
+  res.status(200).json(payload)
 };

@@ -17,8 +17,11 @@ export const handleCreateJob = async (
   const uploadedFile = req.file as Express.Multer.File;
   const { originalname, buffer, mimetype } = uploadedFile;
 
-  const { id: jobId } = await createNewJob();
-  const { id: imageId } = await createNewImage(jobId)
+  const newJob = await createNewJob();
+  const jobId = newJob.id;
+
+  const newImage = await createNewImage(jobId)
+  const imageId = newImage.id;
 
   const blobId = randomUUID();
   const sizesWithOriginal = [IMAGE_SIZE.ORIGINAL, size]
@@ -33,5 +36,5 @@ export const handleCreateJob = async (
     sizes: sizesWithOriginal
   });
 
-  return sendCreateResourceSuccess(res, 'New job successfully created.');
+  return sendCreateResourceSuccess(res, { ...newJob, image: { ...newImage } });
 };
