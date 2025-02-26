@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import { PostJobBody } from '@interfaces/http/jobs';
 import { imageQueue, QUEUE_NAME } from '@services/messageQueue';
 import { IMAGE_SIZE } from '@constants/image';
+import { sendCreateResourceSuccess } from '@handlers/utils';
 
 
 export const handleCreateJob = async (
@@ -32,5 +33,5 @@ export const handleCreateJob = async (
     sizes: sizesWithOriginal
   });
 
-  res.status(200).send('New job successfully created.');
+  return sendCreateResourceSuccess(res, 'New job successfully created.');
 };

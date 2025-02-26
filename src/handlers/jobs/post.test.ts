@@ -4,6 +4,7 @@ import { createNewJob } from '../../database/job';
 import { createNewImage } from '../../database/image';
 import { imageQueue } from '../../services/messageQueue';
 import { IMAGE_SIZE } from '../../constants/image';
+import { sendCreateResourceSuccess } from '../utils';
 
 
 const { ORIGINAL, THUMBMNAIL } = IMAGE_SIZE;
@@ -29,6 +30,10 @@ jest.mock('crypto', () => ({
   randomUUID: jest.fn(() => mockBlobId)
 }));
 
+jest.mock('@handlers/utils', () => ({
+  sendCreateResourceSuccess: jest.fn()
+}));
+
 describe('POST /jobs', () => {
   let mockCreateNewJob: jest.Mock;
   let mockImageQueueAdd: jest.Mock;
@@ -50,9 +55,7 @@ describe('POST /jobs', () => {
   });
 
   afterEach(() => {
-    mockCreateNewJob.mockReset();
-    mockImageQueueAdd.mockReset();
-    mockCreateNewImage.mockReset();
+    jest.clearAllMocks();
   });
 
   it(`when a valid file is in the request
@@ -72,8 +75,7 @@ describe('POST /jobs', () => {
       mimetype: 'image/png',
       sizes: [ORIGINAL, THUMBMNAIL]
     });
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.send).toHaveBeenCalledWith('New job successfully created.');
+    expect(sendCreateResourceSuccess).toHaveBeenCalledWith(res, 'New job successfully created.');
   });
 
   it(`when size is not included in request body

@@ -99,4 +99,3 @@ image).
 - `image` entries cannot be deleted until their blobs are delete from storage
 - `console.error` is being used where a proper error logger should be used
 - Check that errors from dependencies are being caught, handled
-- Replace `res.send()` with utilities for error/success handling

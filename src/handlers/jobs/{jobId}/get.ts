@@ -1,4 +1,5 @@
 import { getJobById } from '@database/job';
+import { sendNotFoundError, sendGetResourceSuccess } from '@handlers/utils';
 import type { Request, Response } from 'express';
 import { JobByIdParams } from 'src/interfaces/http/jobs';
 
@@ -9,11 +10,11 @@ export const handleGetJobById = async (
 ) => {
   const { jobId } = req.params;
 
-  const jobWithImages = await getJobById(parseInt(jobId));
+  const jobWithImageData = await getJobById(parseInt(jobId));
 
-  if (jobWithImages) {
-    res.send(jobWithImages);
+  if (jobWithImageData) {
+    return sendGetResourceSuccess(res, jobWithImageData);
   } else {
-    res.status(404).send(`Cannot find job with ID ${jobId}`);
+    return sendNotFoundError(res, `Cannot find job with ID ${jobId}`);
   }
 };

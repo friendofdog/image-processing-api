@@ -2,6 +2,7 @@ import { handleGetJobThumbnail } from './get';
 import { getJobWithThumbnail } from '../../../../database/job';
 import { mockRequestResponse } from '../../../../../test/mocks/mockExpress';
 import { downloadFileByBlobId } from '../../../../services/imageStorage';
+import { sendNotFoundError, sendServerError } from '../../../utils';
 import { JobStatus } from '@prisma/client';
 import { Readable } from 'stream';
 
@@ -14,6 +15,10 @@ jest.mock('@services/imageStorage', () => ({
   downloadFileByBlobId: jest.fn()
 }));
 
+jest.mock('@handlers/utils', () => ({
+  sendNotFoundError: jest.fn(),
+  sendServerError: jest.fn()
+}));
 
 jest.mock('stream', () => ({
   Readable: { from: jest.fn().mockReturnValue({ pipe: jest.fn() }) }
@@ -42,8 +47,7 @@ describe('GET /jobs/{jobId}/thumbnail', () => {
   });
 
   afterEach(() => {
-    mockGetJobWithThumbnail.mockReset();
-    mockDownloadFileByBlobId.mockReset();
+    jest.clearAllMocks();
   });
 
   it(`when no job is found
@@ -52,8 +56,7 @@ describe('GET /jobs/{jobId}/thumbnail', () => {
 
     await handleGetJobThumbnail(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.send).toHaveBeenCalledWith('No job with thumbnail image found for ID 123.');
+    expect(sendNotFoundError).toHaveBeenCalledWith(res, 'No job with thumbnail image found for ID 123.');
   });
 
   it(`when job status is not SUCCEEDED
@@ -62,8 +65,7 @@ describe('GET /jobs/{jobId}/thumbnail', () => {
 
     await handleGetJobThumbnail(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.send).toHaveBeenCalledWith('Cannot retrieve image for job with status FAILED.');
+    expect(sendServerError).toHaveBeenCalledWith(res, 'Cannot retrieve image for job with status FAILED.');
   });
 
   it(`when no thumbnail image is found
@@ -72,8 +74,7 @@ describe('GET /jobs/{jobId}/thumbnail', () => {
 
     await handleGetJobThumbnail(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.send).toHaveBeenCalledWith('No thumbnail image found for this job.');
+    expect(sendNotFoundError).toHaveBeenCalledWith(res, 'No thumbnail image found for ID 123.');
   });
 
 
@@ -94,7 +95,6 @@ describe('GET /jobs/{jobId}/thumbnail', () => {
 
     await handleGetJobThumbnail(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.send).toHaveBeenCalledWith('No thumbnail image was found for blob ID.');
+    expect(sendNotFoundError).toHaveBeenCalledWith(res, 'No thumbnail image was found for blob ID mocked-blob-id.');
   });
 });

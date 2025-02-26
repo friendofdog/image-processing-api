@@ -1,11 +1,16 @@
 import { handleGetJobs } from './get';
 import { mockRequestResponse } from '../../../test/mocks/mockExpress';
 import { getJobs } from '../../database/job';
+import { sendGetPaginatedSuccess } from '../utils';
 import { JobStatus } from '@prisma/client';
 
 
 jest.mock('@database/job', () => ({
   getJobs: jest.fn()
+}));
+
+jest.mock('@handlers/utils', () => ({
+  sendGetPaginatedSuccess: jest.fn()
 }));
 
 describe('GET /jobs', () => {
@@ -21,7 +26,7 @@ describe('GET /jobs', () => {
   });
 
   afterEach(() => {
-    mockGetJobs.mockReset();
+    jest.clearAllMocks();
   })
 
   it(`when page and limit are included in request query
@@ -35,11 +40,7 @@ describe('GET /jobs', () => {
     await handleGetJobs(req, res);
 
     expect(getJobs).toHaveBeenCalledWith(1, 10);
-
-    expect(res.send).toHaveBeenCalledWith({
-      results: mockJobs,
-      count: mockJobs.length
-    });
+    expect(sendGetPaginatedSuccess).toHaveBeenCalledWith(res, mockJobs);
   });
 
   it(`when page and limit are included in request query
@@ -53,10 +54,6 @@ describe('GET /jobs', () => {
     await handleGetJobs(req, res);
 
     expect(getJobs).toHaveBeenCalledWith(undefined, undefined);
-
-    expect(res.send).toHaveBeenCalledWith({
-      results: mockJobs,
-      count: mockJobs.length
-    });
+    expect(sendGetPaginatedSuccess).toHaveBeenCalledWith(res, mockJobs);
   });
 });

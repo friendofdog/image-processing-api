@@ -2,17 +2,23 @@ import { handleGetJobById } from './get';
 import { mockRequestResponse } from '../../../../test/mocks/mockExpress';
 import { getJobById } from '../../../database/job';
 import { JobStatus } from '@prisma/client';
+import { sendNotFoundError, sendGetResourceSuccess } from '../../utils';
 
 
 jest.mock('@database/job', () => ({
   getJobById: jest.fn()
 }));
 
+jest.mock('@handlers/utils', () => ({
+  sendGetResourceSuccess: jest.fn(),
+  sendNotFoundError: jest.fn()
+}));
+
 describe('GET /jobs', () => {
   let mockGetJobById: jest.Mock;
 
   const jobId = '99';
-  const mockJobWithImages = {
+  const mockJobWithImageData = {
     id: 1,
     status: JobStatus.SUCCEEDED,
     createdAt: new Date(),
@@ -24,7 +30,7 @@ describe('GET /jobs', () => {
   });
 
   afterEach(() => {
-    mockGetJobById.mockReset();
+    jest.clearAllMocks();
   })
 
   it(`when a job is found for a given ID
@@ -32,13 +38,12 @@ describe('GET /jobs', () => {
     const { req, res } = mockRequestResponse();
     req.params = { jobId }
 
-    mockGetJobById.mockResolvedValue(mockJobWithImages);
+    mockGetJobById.mockResolvedValue(mockJobWithImageData);
 
     await handleGetJobById(req, res);
 
     expect(getJobById).toHaveBeenCalledWith(parseInt(jobId));
-
-    expect(res.send).toHaveBeenCalledWith(mockJobWithImages);
+    expect(sendGetResourceSuccess).toHaveBeenCalledWith(res, mockJobWithImageData);
   });
 
   it(`when no job is found for a given ID
@@ -51,8 +56,6 @@ describe('GET /jobs', () => {
     await handleGetJobById(req, res);
 
     expect(getJobById).toHaveBeenCalledWith(parseInt(jobId));
-
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.send).toHaveBeenCalledWith(`Cannot find job with ID ${jobId}`);
+    expect(sendNotFoundError).toHaveBeenCalledWith(res, `Cannot find job with ID ${jobId}`);
   });
 });

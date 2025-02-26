@@ -2,6 +2,7 @@ import { getJobWithThumbnail } from '@database/job';
 import type { DownloadedFileInterface } from '@interfaces/image';
 import { JobStatus } from '@prisma/client';
 import { downloadFileByBlobId } from '@services/imageStorage';
+import { sendNotFoundError, sendServerError } from '@handlers/utils';
 import type { Request, Response } from 'express';
 import { JobByIdParams } from 'src/interfaces/http/jobs';
 import { Readable } from 'stream';
@@ -16,21 +17,18 @@ export const handleGetJobThumbnail = async (
   const jobWithThumbnail = await getJobWithThumbnail(parseInt(jobId));
 
   if (!jobWithThumbnail) {
-    res.status(404).send(`No job with thumbnail image found for ID ${jobId}.`);
-    return;
+    return sendNotFoundError(res, `No job with thumbnail image found for ID ${jobId}.`);
   }
 
   const { status, image } = jobWithThumbnail;
   const { thumbnailBlobId } = image || {};
 
   if (status !== JobStatus.SUCCEEDED) {
-    res.status(500).send(`Cannot retrieve image for job with status ${status}.`);
-    return;
+    return sendServerError(res, `Cannot retrieve image for job with status ${status}.`);
   }
 
   if (!thumbnailBlobId) {
-    res.status(404).send('No thumbnail image found for this job.');
-    return;
+    return sendNotFoundError(res, `No thumbnail image found for ID ${jobId}.`);
   }
 
   const { fileBuffer, metadata } = await downloadFileByBlobId(thumbnailBlobId)
@@ -45,6 +43,6 @@ export const handleGetJobThumbnail = async (
 
     readableStream.pipe(res);
   } else {
-    res.status(404).send('No thumbnail image was found for blob ID.');
+    return sendNotFoundError(res, `No thumbnail image was found for blob ID ${thumbnailBlobId}.`);
   }
 };

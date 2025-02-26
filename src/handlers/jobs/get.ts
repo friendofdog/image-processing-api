@@ -1,4 +1,5 @@
 import { getJobs } from '@database/job';
+import { sendGetPaginatedSuccess } from '@handlers/utils';
 import type { Request, Response } from 'express';
 import { GetJobsQuery } from 'src/interfaces/http/jobs';
 
@@ -13,10 +14,6 @@ export const handleGetJobs = async (
   const limitNumber = limit ? parseInt(limit) : undefined;
 
   const allJobs = await getJobs(pageNumber, limitNumber);
-  const response = {
-    results: allJobs,
-    count: allJobs.length
-  };
 
-  res.send(response);
+  return sendGetPaginatedSuccess(res, allJobs);
 };
