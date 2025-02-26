@@ -7,7 +7,7 @@ export interface GetJobsQuery {
   limit?: string;
 }
 
-export interface JobByIdParams {
+export interface JobByIdParams extends Record<string, string> {
   jobId: string;
 }
 

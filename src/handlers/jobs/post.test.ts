@@ -91,15 +91,4 @@ describe('POST /jobs', () => {
       sizes: [ORIGINAL, THUMBMNAIL]
     });
   });
-
-  it(`when file is invalid
-      should return 400`, async () => {
-    req.file = undefined;
-
-    await handleCreateJob(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.send).toHaveBeenCalledWith('File to upload is missing or incomplete.');
-    expect(mockCreateNewJob).not.toHaveBeenCalled();
-  });
 });

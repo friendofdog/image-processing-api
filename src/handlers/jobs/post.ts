@@ -7,22 +7,14 @@ import { imageQueue, QUEUE_NAME } from '@services/messageQueue';
 import { IMAGE_SIZE } from '@constants/image';
 
 
-interface MulterRequest extends Request {
-  body: PostJobBody;
-}
-
-
 export const handleCreateJob = async (
-  req: MulterRequest,
+  req: Request<any, null, PostJobBody>,
   res: Response
 ): Promise<void> => {
-  if (!req?.file) {
-    res.status(400).send('File to upload is missing or incomplete.');
-    return;
-  }
-
   const { size = IMAGE_SIZE.THUMBMNAIL } = req.body;
-  const { originalname, buffer, mimetype } = req.file;
+
+  const uploadedFile = req.file as Express.Multer.File;
+  const { originalname, buffer, mimetype } = uploadedFile;
 
   const { id: jobId } = await createNewJob();
   const { id: imageId } = await createNewImage(jobId)

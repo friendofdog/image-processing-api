@@ -4,7 +4,7 @@ import { GetJobsQuery } from 'src/interfaces/http/jobs';
 
 
 export const handleGetJobs = async (
-  req: Request<null, null, null, GetJobsQuery>,
+  req: Request<any, null, null, GetJobsQuery>,
   res: Response
 ) => {
   const { page, limit } = req.query;
