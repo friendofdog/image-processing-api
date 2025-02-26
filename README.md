@@ -97,13 +97,6 @@ image).
 ## Notes, TODOs
 
 - `image` entries cannot be deleted until their blobs are delete from storage
-- `handleGetImageThumbnail` could be re-purposed to find other image sizes, but
-there is nothing in specs requiring this; hence, it would be over-engineered
-- Calls to AWS S3 log error in console and throw a non-specific message to
-abstract the error (which we do not necessarily want returning to client)
 - `console.error` is being used where a proper error logger should be used
+- Check that errors from dependencies are being caught, handled
 - Replace `res.send()` with utilities for error/success handling
-- Time permitting, implement OpenAPI or some similar HTTP schema
-- Validate image size!!
-- It doesn't make sense to include `ORIGINAL` in the POST endpoint, as this size
-will always be stored
