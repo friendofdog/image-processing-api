@@ -21,7 +21,7 @@ export const handleCreateJob = async (
     return;
   }
 
-  const { size } = req.body;
+  const { size = IMAGE_SIZE.THUMBMNAIL } = req.body;
   const { originalname, buffer, mimetype } = req.file;
 
   const { id: jobId } = await createNewJob();

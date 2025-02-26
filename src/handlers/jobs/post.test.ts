@@ -6,6 +6,8 @@ import { imageQueue } from '../../services/messageQueue';
 import { IMAGE_SIZE } from '../../constants/image';
 
 
+const { ORIGINAL, THUMBMNAIL } = IMAGE_SIZE;
+
 const mockImageId = 99;
 const mockJobId = 22;
 const mockBlobId = 'mocked-blob-id';
@@ -39,7 +41,7 @@ describe('POST /jobs', () => {
     mockCreateNewJob = (createNewJob as jest.Mock).mockResolvedValue({ id: mockJobId });
     mockImageQueueAdd = (imageQueue.add as jest.Mock);
 
-    req.body = { size: IMAGE_SIZE.THUMBMNAIL };
+    req.body = { size: THUMBMNAIL };
     req.file = {
       originalname: 'test.png',
       buffer: Buffer.from('mocked file data'),
@@ -68,10 +70,26 @@ describe('POST /jobs', () => {
       imageId: mockImageId,
       jobId: mockJobId,
       mimetype: 'image/png',
-      sizes: [IMAGE_SIZE.ORIGINAL, IMAGE_SIZE.THUMBMNAIL]
+      sizes: [ORIGINAL, THUMBMNAIL]
     });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith('New job successfully created.');
+  });
+
+  it(`when size is not included in request body
+      defaults to ${THUMBMNAIL}`, async () => {
+    req.body = {};
+    await handleCreateJob(req, res);
+
+    expect(mockImageQueueAdd).toHaveBeenCalledWith('mock-queue-name', {
+      blobId: mockBlobId,
+      fileContent: Buffer.from('mocked file data'),
+      fileName: 'test.png',
+      imageId: mockImageId,
+      jobId: mockJobId,
+      mimetype: 'image/png',
+      sizes: [ORIGINAL, THUMBMNAIL]
+    });
   });
 
   it(`when file is invalid
