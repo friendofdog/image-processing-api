@@ -45,7 +45,7 @@ const imageWorker = new Worker<ImageProcessingWorkerInterface>(
       blobId, fileContent, fileName, mimetype, sizes
     } = job.data;
     const buffer = Buffer.from(fileContent.data);
-    
+
     const blobIdsByRowName: Map<ImageModelValue, string> = new Map();
 
     await Promise.all(
@@ -81,6 +81,8 @@ imageWorker.on('completed', async job => {
 });
 
 imageWorker.on('failed', async (job, err) => {
+  // TODO: In every scenario tested thus far, `job` has been defined. However,
+  // it is typed as optional. Determine when it might be missing, deal with it.
   if (job) {
     const { jobId } = job.data;
     await updateJob(jobId, { status: JobStatus.FAILED });

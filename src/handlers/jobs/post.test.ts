@@ -1,10 +1,11 @@
 import { handleCreateJob } from './post';
 import { mockRequestResponse } from '../../../test/mocks/mockExpress';
-import { createNewJob } from '../../database/job';
+import { createNewJob, updateJob } from '../../database/job';
 import { createNewImage } from '../../database/image';
 import { imageQueue } from '../../services/messageQueue';
 import { IMAGE_SIZE } from '../../constants/image';
 import { sendCreateResourceSuccess } from '../utils';
+import { JobStatus } from '@prisma/client';
 
 
 const { ORIGINAL, THUMBMNAIL } = IMAGE_SIZE;
@@ -14,7 +15,8 @@ const mockJobId = 22;
 const mockBlobId = 'mocked-blob-id';
 
 jest.mock('@database/job', () => ({
-  createNewJob: jest.fn()
+  createNewJob: jest.fn(),
+  updateJob: jest.fn()
 }));
 
 jest.mock('@database/image', () => ({
@@ -36,6 +38,7 @@ jest.mock('@handlers/utils', () => ({
 
 describe('POST /jobs', () => {
   let mockCreateNewJob: jest.Mock;
+  let mockUpdateJob: jest.Mock;
   let mockImageQueueAdd: jest.Mock;
   let mockCreateNewImage: jest.Mock;
 
@@ -44,6 +47,7 @@ describe('POST /jobs', () => {
   beforeEach(() => {
     mockCreateNewImage = (createNewImage as jest.Mock).mockResolvedValue({ id: mockImageId });
     mockCreateNewJob = (createNewJob as jest.Mock).mockResolvedValue({ id: mockJobId });
+    mockUpdateJob = (updateJob as jest.Mock);
     mockImageQueueAdd = (imageQueue.add as jest.Mock);
 
     req.body = { size: THUMBMNAIL };
@@ -75,6 +79,7 @@ describe('POST /jobs', () => {
       mimetype: 'image/png',
       sizes: [ORIGINAL, THUMBMNAIL]
     });
+    expect(mockUpdateJob).toHaveBeenCalledWith(mockJobId, { status: JobStatus.PROCESSING });
     expect(sendCreateResourceSuccess).toHaveBeenCalledWith(res, { id: mockJobId, image: { id: mockImageId } });
   });
 
