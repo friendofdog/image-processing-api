@@ -145,3 +145,4 @@ a way to remove them. Need to be careful not to orphan images in storage when a
 roughly where a proper logger could be used to keep track of important events.
 - Add some extra options for image sizing for images that are not already a
 perfect square.
+- Environment variables are a bit messy, could use some cleaning up.
