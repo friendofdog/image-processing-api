@@ -1,32 +1,16 @@
-## Technical overview
+# Image Processing API
 
-### Express
+Author: Kevin Kee <kevinkee9@gmail.com>
 
-### BullMQ/Redis
+## Assumptions
 
-### MinIO
-
-MinIO is an S3-compatible object storage system. It performs better then a
-relational database for storing images, and it illustrates how this API might
-work if it used S3 as storage (which I would do if this was a commercial
-project).
-
-### Postgres
-
-This API has just two tables: `job` and `image`. They have a one-to-one
-relationship. `job` carries information pertaining to the status of an image,
-whereas `image` carries information pertaining to storage and retrieval of the
-image itself.
-
-All of this information could go in `job`, but that table could become bloated
-as the project matures, and it is reasonable to expect that other resources
-might want to access the image independently of the `job`.
-
-### Prisma
-
-Prisma is a TypeScript-compatible ORM which works well with Postgres. Given the
-simplicity of the database and the need to work in TypeScript, it was a logical
-choice.
+- The UI will send an image which the user has already trimmed to a square.
+- The original image should be kept in storage, as it could be used for other
+things down the road. For example, if larger image resolutions introduced, there
+needs to be a way to access the original image.
+- It is reasonable to expect that the API will expand past the original goal of
+creating simple thumbnails. As such, endpoints, methods, etc. should be kept as
+generic as possible, while still adhering to specs.
 
 ## How to run
 
@@ -40,13 +24,66 @@ on your environment, including a bucket for image storage
     - Dev: `npm run dev`
     - Prod: `npm run build` to build `/dist`, then `npm run start`
 
+API endpoints are documented using Swagger at `/api-docs`.
+
+## Technical choices and architecture
+
+### Express
+
+Express is lightweight, supports middleware, works well with TypeScript, and is
+not overly complex for a small project. It supports things such as request
+validation, file upload, and response handling.
+
+### BullMQ/Redis
+
+Being asynchronous and non-blocking, a message queue is suitable for offloading
+image processing tasks while allowing the request-response cycle to complete.
+
+BullMQ, being a NodeJS library with minimal overhead, was a good choice given
+the scope and intention of this project. It does not natively support sub/pub,
+meaning that the client has to poll the image results; but this was accounted
+for in the specs. It uses Redis, which itself must be managed separately, but
+it's an acceptable tradeoff for ensuring job persistence and high throughput.
+
+### MinIO
+
+A relational database is not the best choice for image storage, as that can
+increase the database size and cause performance issues. Therefore, an object
+storage database is more suitable.
+
+The original plan was to use S3. However, that would have made this project
+dependent on AWS, which is a bit too much given the scope. Therefore, MinIO was
+selected, as it is an S3-compatible object storage system which run locally,
+satisfies image storage requirements, and can (theoretically) be swapped out for
+S3.
+
+### Postgres
+
+A central premise of this API is that there is a `job` and an `image`, and that
+the two are related to each other. Data could be stored in a NoSQL database, but
+structured, relational storage lends itself better to this situation.
+
+Postgres can appropriately handle this, while being flexible enough for future
+changes. There is no reason to expect more specialised storage to be needed, and
+it is not overly complex for the first iteration.
+
+### Prisma
+
+The choice to use Prisma was determined largely by the rest of the technical
+choices, namely TypeScript and Postgres.
+
+Prisma generates interfaces from SQL schema, which is useful in ensuring type
+consistency across the entire API. Database operations are abstracted to a level
+which is appropriate, given the simplicity of the relationship between `job` and
+`image`.
+
 ## Domains
 
 ### Job
 
 A `job` is a request to process an image, namely to create a thumbnail from an
 original. Its status indicates if processed images have been created and are
-available. Status proceeds as such:
+available. Statuses are:
 
 1. `UNPROCESSED`: the initial status, before any processing is requested
 2. `PROCESSING`: processing has been requested, but no results are in
@@ -55,47 +92,52 @@ available. Status proceeds as such:
 
 ### Image
 
-An `image` is the image entity associated with a `job`. It contains the blob ID
-and also indicates how the image was processed.
+An `image` has a one-to-one relationship with a `job` and stores data which is
+pertinent to the image file (namely blob IDs). This data could have been kept in
+the `job`, but it is reasonable to expect that someone would need to access it
+independently of the `job`.
 
-There are two versions of an `image`: original and thumbnail. More might be
-added later, but those are not being considered yet.
+There are two versions of an image: `original` and `thumbnail`. More might be
+added later, but those are not part of current iteration.
 
-When an `image` is "processed", it means that the it was resized (thumbnail
-only) and uploaded to storage. A valid blob ID is indicative of successful
-processing. The associated job is `PROCESSED` only once both/all images have
-blob IDs.
+## Putting into production
 
-## Endpoints
+Authorization is a must. The data in this project isn't the most confidential,
+but it could be very expensive if anyone can upload images without restriction.
 
-Not covering all endpoints here, just some decisions around a few key endpoints.
+Authentication and an association between job and user is needed. This helps
+restrict unwanted access to resources, and eventually you will want to know who
+created which images.
 
-### `POST /jobs`
+Integration tests would be useful in determining if messages are correctly sent,
+received, and processed.
 
-This endpoint accepts an image to be resized and `sizes`, which is an enum of
-image sizes to process. At the moment, the only option is `thumbnail`. However,
-the specs indicate "more time-consuming image processing" will be needed, so it
-is best to plan for the eventuality of other image sizes.
+## Scaling
 
-The original image is always stored when this endpoint is called. It does not
-sense to re-upload that version of the image whenever the user wants to do
-something with it.
+Redis could be a bottleneck under heavy loads. One solution could be to scale
+horizontally, but that needs to be managed and adds overhead. Another solution
+could be to move messaging to AWS, using *API Gateway*, *S3*, and *Lambda* to
+manage image processing and storage. This would ensure that resource are
+requisitioned only when needed.
 
-### `GET /jobs`
+One of the feature of this API is listing jobs to see which ones have completed
+images. This does not work if there are hundreds of recent jobs. The logic
+behind this search will have to be amended, perhaps listing jobs by user or by
+a given time range.
 
-By default, this will return the most recent 100 jobs. The reason is to prevent
-overfetching of data, as the UI can only display so much information. Results
-are in reverse `createdAt`, as it is assumed that the most recent jobs are the
-most relevant.
+On the same note the Postgres database will eventually grow quite large. It
+would help to add indexing. Depending on how often people access images versus
+creating them, read-only copies of the database might also be useful.
 
-### `PATCH /jobs/{jobId}/retry`
+## Ideas for future iterations
 
-For future reference. This endpoint was not implemented, but it would be a very
-good idea to retry failed jobs. (Another reason to always store the original
-image).
-
-## Notes, TODOs
-
-- `image` entries cannot be deleted until their blobs are delete from storage
-- `console.error` is being used where a proper error logger should be used
-- Check that errors from dependencies are being caught, handled
+- Access images directly. It's very likely that someone will want to retrieve a
+thumbnail without referencing the job.
+- Add a retry endpoint for jobs that get stuck in `PROCESSING` (for example).
+- Delete jobs and images. Because images take up a lot of space, there should be
+a way to remove them. Need to be careful not to orphan images in storage when a
+`image` entry is deleted.
+- Implement error logging. As of now, `console.error` and `console.log` are used
+roughly where a proper logger could be used to keep track of important events.
+- Add some extra options for image sizing for images that are not already a
+perfect square.
