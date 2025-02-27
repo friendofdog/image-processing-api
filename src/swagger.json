@@ -1,0 +1,119 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Image processing API",
+    "description": "Resizes images",
+    "version": "1.0.0"
+  },
+  "host": "localhost:8000",
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/api-docs": {
+      "get": {
+        "description": "Returns API documentation",
+        "responses": {
+          "default": { "description": "Default response" }
+        }
+      }
+    },
+    "/healthcheck": {
+      "get": {
+        "description": "Healthcheck endpoint",
+        "responses": {
+          "200": { "description": "OK" }
+        }
+      }
+    },
+    "/jobs": {
+      "get": {
+        "description": "Get a list of jobs",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number, must be a positive integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of jobs per page, must be a positive integer"
+          }
+        ],
+        "responses": {
+          "400": { "description": "Bad Request" }
+        }
+      },
+      "post": {
+        "description": "Create a new job",
+        "consumes": ["multipart/form-data"],
+        "parameters": [
+          {
+            "name": "size",
+            "in": "formData",
+            "type": "string",
+            "enum": ["thumbnail"],
+            "description": "Image size (optional)"
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "type": "file",
+            "required": true,
+            "description": "Image file to be uploaded"
+          }
+        ],
+        "responses": {
+          "400": { "description": "Bad Request" }
+        }
+      }
+    },
+    "/jobs/{jobId}": {
+      "get": {
+        "description": "Get job details by ID",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "description": "Job ID must be a positive integer"
+          }
+        ],
+        "responses": {
+          "400": { "description": "Bad Request" }
+        }
+      }
+    },
+    "/jobs/{jobId}/image": {
+      "get": {
+        "description": "Get job image by ID and size",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "description": "Job ID must be a positive integer"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "type": "string",
+            "enum": ["original", "thumbnail"],
+            "description": "Size of the image, either 'original' or 'thumbnail'"
+          }
+        ],
+        "responses": {
+          "400": { "description": "Bad Request" }
+        }
+      }
+    }
+  }
+}

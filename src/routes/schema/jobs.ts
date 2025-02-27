@@ -8,12 +8,14 @@ export const getJobsSchema: Schema = {
   page: {
     in: ['query'],
     exists: { errorMessage: 'Page is required' },
-    isInt: { options: { min: 1 }, errorMessage: 'Page must be a positive integer' }
+    isInt: { options: { min: 1 }, errorMessage: 'Page must be a positive integer' },
+    optional: true
   },
   limit: {
     in: ['query'],
     exists: { errorMessage: 'Limit is required' },
-    isInt: { options: { min: 1 }, errorMessage: 'Limit must be a positive integer' }
+    isInt: { options: { min: 1 }, errorMessage: 'Limit must be a positive integer' },
+    optional: true
   }
 };
 
