@@ -15,6 +15,7 @@
     "build": "tspc --build",
     "lint": "eslint .",
     "migrate:up": "prisma migrate deploy",
+    "swagger": "nodemon ./src/swagger.ts",
     "test": "jest"
   },
   "jest": {
@@ -49,6 +50,7 @@
     "express-validator": "7.2.1",
     "multer": "1.4.5-lts.1",
     "sharp": "0.33.5",
+    "swagger-ui-express": "5.0.1",
     "ts-patch": "3.3.0",
     "typescript-transform-paths": "3.5.3"
   },
@@ -58,6 +60,7 @@
     "@types/jest": "29.5.14",
     "@types/multer": "1.4.12",
     "@types/node": "22.13.4",
+    "@types/swagger-ui-express": "4.1.8",
     "@typescript-eslint/eslint-plugin": "8.24.0",
     "@typescript-eslint/parser": "8.24.0",
     "eslint": "9.20.1",

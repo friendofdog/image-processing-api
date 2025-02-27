@@ -1,13 +1,13 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Image processing API",
+    "title": "Image Processing API",
     "description": "Resizes images",
     "version": "1.0.0"
   },
   "host": "localhost:8000",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": ["http", "https"],
   "paths": {
     "/api-docs": {
       "get": {
