@@ -1,6 +1,6 @@
 import sharp from 'sharp';
 import { processImage } from './imageProcessing';
-import { IMAGE_SIZE } from '../constants/image';
+import { IMAGE_SIZE } from '@constants/image';
 
 
 const { ORIGINAL, THUMBMNAIL } = IMAGE_SIZE;

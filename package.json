@@ -12,7 +12,7 @@
   "scripts": {
     "start": "node ./dist/app.js",
     "dev": "nodemon src/app.ts",
-    "build": "tspc --build",
+    "build": "tspc --project tsconfig.build.json",
     "lint": "eslint .",
     "migrate:up": "prisma migrate deploy",
     "swagger": "nodemon ./src/swagger.ts",
@@ -51,8 +51,7 @@
     "multer": "1.4.5-lts.1",
     "sharp": "0.33.5",
     "swagger-ui-express": "5.0.1",
-    "ts-patch": "3.3.0",
-    "typescript-transform-paths": "3.5.3"
+    "ts-patch": "3.3.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.2.0",
@@ -70,6 +69,7 @@
     "prisma": "6.4.1",
     "ts-jest": "29.2.5",
     "ts-node": "10.9.2",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "typescript-transform-paths": "3.5.3"
   }
 }

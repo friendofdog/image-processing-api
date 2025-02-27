@@ -1,8 +1,8 @@
 import { handleGetJobById } from './get';
-import { mockRequestResponse } from '../../../../test/mocks/mockExpress';
-import { getJobById } from '../../../database/job';
+import { mockRequestResponse } from 'test/mocks/mockExpress';
+import { getJobById } from '@database/job';
 import { JobStatus } from '@prisma/client';
-import { sendNotFoundError, sendGetResourceSuccess } from '../../utils';
+import { sendNotFoundError, sendGetResourceSuccess } from '@handlers/utils';
 
 
 jest.mock('@database/job', () => ({

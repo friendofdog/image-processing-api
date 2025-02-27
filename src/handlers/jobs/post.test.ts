@@ -1,10 +1,10 @@
 import { handleCreateJob } from './post';
-import { mockRequestResponse } from '../../../test/mocks/mockExpress';
-import { createNewJob, updateJob } from '../../database/job';
-import { createNewImage } from '../../database/image';
-import { imageQueue } from '../../services/messageQueue';
-import { IMAGE_SIZE } from '../../constants/image';
-import { sendCreateResourceSuccess } from '../utils';
+import { mockRequestResponse } from 'test/mocks/mockExpress';
+import { createNewJob, updateJob } from '@database/job';
+import { createNewImage } from '@database/image';
+import { imageQueue } from '@services/messageQueue';
+import { IMAGE_SIZE } from '@constants/image';
+import { sendCreateResourceSuccess } from '@handlers/utils';
 import { JobStatus } from '@prisma/client';
 
 

@@ -1,7 +1,7 @@
 import { handleGetJobs } from './get';
-import { mockRequestResponse } from '../../../test/mocks/mockExpress';
-import { getJobs } from '../../database/job';
-import { sendGetPaginatedSuccess } from '../utils';
+import { mockRequestResponse } from 'test/mocks/mockExpress';
+import { getJobs } from '@database/job';
+import { sendGetPaginatedSuccess } from '@handlers/utils';
 import { JobStatus } from '@prisma/client';
 
 

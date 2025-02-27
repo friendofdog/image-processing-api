@@ -39,8 +39,7 @@
   "exclude": [
     "node_modules",
     "prisma",
-    "test",
-    "**/*.test.ts"
+    "test"
   ],
   "include": ["src"],
   "ts-node": {

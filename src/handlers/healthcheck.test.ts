@@ -1,5 +1,5 @@
 import { healthcheck } from './healthcheck'
-import { mockRequestResponse } from '../../test/mocks/mockExpress';
+import { mockRequestResponse } from 'test/mocks/mockExpress';
 
 
 describe('GET /healthcheck', () => {

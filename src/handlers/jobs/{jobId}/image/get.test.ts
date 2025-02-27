@@ -1,11 +1,11 @@
 import { handleGetJobImage } from './get';
-import { getJobWithImage } from '../../../../database/job';
-import { mockRequestResponse } from '../../../../../test/mocks/mockExpress';
-import { downloadFileByBlobId } from '../../../../services/imageStorage';
-import { sendNotFoundError, sendServerError } from '../../../utils';
+import { getJobWithImage } from '@database/job';
+import { mockRequestResponse } from 'test/mocks/mockExpress';
+import { downloadFileByBlobId } from '@services/imageStorage';
+import { sendNotFoundError, sendServerError } from '@handlers/utils';
+import { IMAGE_SIZE } from '@constants/image';
 import { JobStatus } from '@prisma/client';
 import { Readable } from 'stream';
-import { IMAGE_SIZE } from '../../../../constants/image';
 
 
 const { ORIGINAL, THUMBMNAIL } = IMAGE_SIZE;
