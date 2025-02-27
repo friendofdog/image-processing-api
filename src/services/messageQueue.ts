@@ -42,10 +42,10 @@ const imageWorker = new Worker<ImageProcessingWorkerInterface>(
   QUEUE_NAME,
   async job => {
     const {
-      blobId, fileContent, fileName, mimetype, sizes
+      blobId, fileContent, fileName, jobId, mimetype, sizes
     } = job.data;
     const buffer = Buffer.from(fileContent.data);
-    
+
     const blobIdsByRowName: Map<ImageModelValue, string> = new Map();
 
     await Promise.all(
@@ -66,6 +66,11 @@ const imageWorker = new Worker<ImageProcessingWorkerInterface>(
       })
     );
 
+    // TODO: However unlikely, there is a chance that this will update the DB
+    // entry AFTER the job completes. It might be prudent to check status and
+    // retry when consuming completed messages.
+    await updateJob(jobId, { status: JobStatus.PROCESSING });
+
     return blobIdsByRowName;
   }, {
     connection: CONNECTION
@@ -81,6 +86,8 @@ imageWorker.on('completed', async job => {
 });
 
 imageWorker.on('failed', async (job, err) => {
+  // TODO: In every scenario tested thus far, `job` has been defined. However,
+  // it is typed as optional. Determine when it might be missing, deal with it.
   if (job) {
     const { jobId } = job.data;
     await updateJob(jobId, { status: JobStatus.FAILED });
